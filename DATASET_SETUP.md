@@ -75,6 +75,7 @@ FOMO/
         └── Surgical/
 ```
 
+In order to download each dataset you will need to make roboflow accounts. Once you have an account click on Download Dataset > Raw URL. You can use this raw url to download the data locally (e.g. ```wget -O <DatasetName> <DatasetURL>'''
 
 1. Aquatic: https://universe.roboflow.com/roboflow-100/aquarium-qlnqy
 
