@@ -309,6 +309,7 @@ class FOMO(nn.Module):
                 self.processor,
                 args.data_task,
                 aug_pipeline,
+                data_root = args.data_root
             )
 
             fs_dataloader = DataLoader(dataset=fs_dataset,
@@ -826,10 +827,10 @@ class PostProcess(nn.Module):
 def build(args):
     device = torch.device(args.device)
 
-    with open(f'data/{args.data_task}/ImageSets/{args.dataset}/{args.classnames_file}', 'r') as file:
+    with open(f'{args.data_root}/{args.data_task}/ImageSets/{args.dataset}/{args.classnames_file}', 'r') as file:
         ALL_KNOWN_CLASS_NAMES = sorted(file.read().splitlines())
 
-    with open(f'data/{args.data_task}/ImageSets/{args.dataset}/{args.prev_classnames_file}', 'r') as file:
+    with open(f'{args.data_root}/{args.data_task}/ImageSets/{args.dataset}/{args.prev_classnames_file}', 'r') as file:
         PREV_KNOWN_CLASS_NAMES = sorted(file.read().splitlines())
 
     CUR_KNOWN_ClASSNAMES = [cls for cls in ALL_KNOWN_CLASS_NAMES if cls not in PREV_KNOWN_CLASS_NAMES]
@@ -837,7 +838,7 @@ def build(args):
     known_class_names = PREV_KNOWN_CLASS_NAMES + CUR_KNOWN_ClASSNAMES
 
     if args.unk_proposal and args.unknown_classnames_file != "None":
-        with open(f'data/{args.data_task}/ImageSets/{args.dataset}/{args.unknown_classnames_file}', 'r') as file:
+        with open(f'{args.data_root}/{args.data_task}/ImageSets/{args.dataset}/{args.unknown_classnames_file}', 'r') as file:
             unknown_class_names = sorted(file.read().splitlines())
         unknown_class_names = [k for k in unknown_class_names if k not in known_class_names]
         unknown_class_names = [c.replace('_', ' ') for c in unknown_class_names]
@@ -846,7 +847,7 @@ def build(args):
         unknown_class_names = ["object"]
 
     if args.templates_file:
-        with open(f'data/{args.data_task}/ImageSets/{args.dataset}/{args.templates_file}', 'r') as file:
+        with open(f'{args.data_root}/{args.data_task}/ImageSets/{args.dataset}/{args.templates_file}', 'r') as file:
             templates = file.read().splitlines()
     else:
         templates = ["a photo of a {c}"]

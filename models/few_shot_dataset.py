@@ -65,10 +65,11 @@ class FewShotDataset(Dataset):
                  num_few_shot,
                  processor,
                  task,
-                 augmentation_pipline=None):
+                 augmentation_pipline=None,
+                 data_root:str = "data"  ):
 
-        self.image_conditioned_file = f'data/{task}/ImageSets/{dataset}/{image_conditioned_file}'
-        self.image_conditioned_dir = f'data/{task}/JPEGImages/{dataset}/'
+        self.image_conditioned_file = f'{data_root}/{task}/ImageSets/{dataset}/{image_conditioned_file}'
+        self.image_conditioned_dir = f'{data_root}/{task}/JPEGImages/{dataset}/'
 
         with open(self.image_conditioned_file) as f:
             self.few_shot_dict = json.loads(f.read())

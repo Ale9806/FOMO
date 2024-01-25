@@ -1,1 +1,4 @@
 data/
+outputs/
+slurm_logs/
+data
