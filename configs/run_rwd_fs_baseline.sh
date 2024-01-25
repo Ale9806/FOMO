@@ -5,9 +5,9 @@ cur_fname="$(basename $0 .sh)"
 script_name=$(basename $0)
 
 # Cluster parameters
-partition=""
-account=""
-
+partition="pasteur"
+account="pasteur"
+gpu_type="titanrtx"
 # Initialize TCP port and counter
 TCP_INIT=29500
 counter=0
@@ -44,10 +44,10 @@ for num_shot in "${NUM_SHOTS[@]}"; do
       tcp=$((TCP_INIT + counter))
 
       # Construct the command to run --output_file res/$dataset-$num_shot-$model.csv \
-      cmd="python main.py --model_name \"$model\" --num_few_shot $num_shot --batch_size $BATCH_SIZE \
+      cmd="python ../main.py --data_root ../data  --model_name \"$model\" --num_few_shot $num_shot --batch_size $BATCH_SIZE \
       --PREV_INTRODUCED_CLS 0 --CUR_INTRODUCED_CLS $cur_cls --TCP $tcp --dataset $dataset \
       --image_conditioned --image_resize $IMAGE_SIZE \
-      --att_adapt --unk_methods 'None' --unk_method 'None'"
+      --att_adapt --unk_methods 'None' --unk_method 'None' --output_file ../outputs/RWD/T1/${model}/${dataset}/${ucn_fname}_fs_${num_shot}.csv "
 
       echo "Constructed Command:\n$cmd"
 
@@ -55,11 +55,11 @@ for num_shot in "${NUM_SHOTS[@]}"; do
       sbatch <<< \
 "#!/bin/bash
 #SBATCH --job-name=${dataset}-${cur_fname}-${partition}-${num_shot}
-#SBATCH --output=slurm_logs/${dataset}/v0-${current_date}-${num_shot}-${cur_fname}-${partition}-%j-out.txt
-#SBATCH --error=slurm_logs/${dataset}/v0-${current_date}-${num_shot}-${cur_fname}-${partition}-%j-err.txt
+#SBATCH --output=../slurm_logs/RWD/T1/${model}/${dataset}/${ucn_fname}_fs_${num_shot}_out.txt
+#SBATCH --error=../slurm_logs/RWD/T1/${model}/${dataset}/${ucn_fname}_fs_${num_shot}_err.txt
 #SBATCH --mem=32gb
 #SBATCH -c 2
-#SBATCH --gres=gpu:a6000
+#SBATCH --gres=gpu:${gpu_type}:2
 #SBATCH -p $partition
 #SBATCH -A $account
 #SBATCH --time=48:00:00

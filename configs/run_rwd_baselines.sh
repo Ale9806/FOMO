@@ -5,9 +5,9 @@ cur_fname="$(basename $0 .sh)"
 script_name=$(basename $0)
 
 # Cluster parameters
-partition=""
-account=""
-save_dict="tmp/imagenet/t_1"
+partition="pasteur"
+account="pasteur"
+gpu_type="titanrtx"
 
 # Initialize TCP port and counter
 TCP_INIT=29500
@@ -44,24 +44,32 @@ for unk_class_file in "${UNK_CLASS_FILES[@]}"; do
       IMAGE_SIZE=${IMAGE_SIZEs[$model]}
       tcp=$((TCP_INIT + counter))
 
+      # remove the .txt from the end of the file name only if it not None
+      if [ "$unk_class_file" != "None" ]; then
+        ucn_fname=${unk_class_file::-4}
+      else
+        ucn_fname="None"
+      fi
+     
       # Construct the command to run
-      cmd="python main.py --model_name \"$model\" --batch_size $BATCH_SIZE \
+      cmd="python ../main.py --data_root ../data --model_name \"$model\" --batch_size $BATCH_SIZE \
       --PREV_INTRODUCED_CLS 0 --CUR_INTRODUCED_CLS $cur_cls --TCP $tcp --dataset $dataset \
       --image_resize $IMAGE_SIZE --unknown_classnames_file $unk_class_file --unk_proposal  \
-      --unk_methods 'None' --unk_method 'None'"
+      --unk_methods 'None' --unk_method 'None' --output_file ../outputs/RWD/T1/${model}/${dataset}/${ucn_fname}.csv"
       #--output_dir $save_dict"  --output_file $model-$dataset-$unk_class_file.csv"
 
       echo "Constructed Command: $cmd"
+
 
       # Uncomment below to submit the job
       sbatch <<< \
 "#!/bin/bash
 #SBATCH --job-name=v-${dataset}-${unk_class_file}-${cur_fname}
-#SBATCH --output=slurm_logs/${baseline}-{dataset}-${current_date}-${cur_fname}-${unk_class_file}-%j-out.txt
-#SBATCH --error=slurm_logs/${baseline}-{dataset}-${current_date}-${cur_fname}-${unk_class_file}-%j-err.txt
+#SBATCH --output=../slurm_logs/RWD/T1/${model}/${dataset}/${ucn_fname}_out.txt
+#SBATCH --error=../slurm_logs/RWD/T1/${model}/${dataset}/${ucn_fname}_err.txt
 #SBATCH --mem=32gb
 #SBATCH -c 2
-#SBATCH --gres=gpu:a6000
+#SBATCH --gres=gpu:${gpu_type}:1
 #SBATCH -p $partition
 #SBATCH -A $account
 #SBATCH --time=48:00:00
